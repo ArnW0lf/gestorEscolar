@@ -1,0 +1,14 @@
+<!-- child_grades.html -->
+{% extends 'base.html' %}
+{% block content %}
+<h2>Notas de mis hijos</h2>
+<table>
+    {% for grade in object_list %}
+    <tr>
+        <td>{{ grade.student }}</td>
+        <td>{{ grade.subject }}</td>
+        <td>{{ grade.grade }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
