@@ -1,0 +1,13 @@
+.spacer {
+  flex: 1 1 auto;
+}
+
+.content-container {
+  padding: 20px;
+}
+
+mat-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000; // Ensure toolbar stays on top
+}

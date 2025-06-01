@@ -1,0 +1,54 @@
+.student-list-container {
+  margin: 20px;
+}
+
+mat-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px; /* Add some space below the header */
+}
+
+.add-button {
+  margin-left: auto; /* Pushes the button to the right */
+}
+
+mat-form-field {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.table-container {
+  position: relative;
+  overflow: auto;
+}
+
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 150px; /* Or any appropriate height */
+}
+
+table {
+  width: 100%;
+}
+
+.mat-row .mat-cell {
+  border-bottom: 1px solid transparent;
+  border-top: 1px solid transparent;
+  cursor: pointer;
+}
+
+.mat-row:hover .mat-cell {
+  border-color: currentColor;
+}
+
+.mat-column-actions {
+  width: 120px; /* Adjust as needed */
+  text-align: right;
+}
+
+.mat-column-id {
+  width: 70px;
+}
