@@ -11,6 +11,13 @@ from .models import *
 from .serializers import *
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, Http404
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.authtoken.models import Token
+import pandas as pd
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.preprocessing import LabelEncoder
+import numpy as np
+from datetime import datetime, timedelta
 
 # Custom Permissions
 from .permissions import IsAdminOrTeacherOfSubjectObject, IsAdminOrTeacherOfSubjectObjectAttendance
@@ -558,3 +565,344 @@ class ParentStudentView(APIView):
         children = request.user.children.all()
         serializer = UserSerializer(children, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class RegisterStudentView(APIView):
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        # Agregar el rol automáticamente
+        data = request.data.copy()
+        data['role'] = 'STUDENT'
+        
+        serializer = UserSerializer(data=data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            user = serializer.save()
+            
+            from rest_framework.authtoken.models import Token
+            token, created = Token.objects.get_or_create(user=user)
+            
+            return Response({
+                "message": "Estudiante registrado exitosamente",
+                "token": token.key,
+                "user_id": user.id,
+                "role": user.role
+            }, status=status.HTTP_201_CREATED)
+            
+        except serializers.ValidationError as e:
+            return Response({
+                "error": str(e.detail.get('error', e.detail))
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+class RegisterTeacherView(APIView):
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        # Agregar el rol automáticamente
+        data = request.data.copy()
+        data['role'] = 'TEACHER'
+        
+        serializer = UserSerializer(data=data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            user = serializer.save()
+            
+            from rest_framework.authtoken.models import Token
+            token, created = Token.objects.get_or_create(user=user)
+            
+            return Response({
+                "message": "Profesor registrado exitosamente",
+                "token": token.key,
+                "user_id": user.id,
+                "role": user.role
+            }, status=status.HTTP_201_CREATED)
+            
+        except serializers.ValidationError as e:
+            return Response({
+                "error": str(e.detail.get('error', e.detail))
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+class RegisterParentView(APIView):
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        # Agregar el rol automáticamente
+        data = request.data.copy()
+        data['role'] = 'PARENT'
+        
+        serializer = UserSerializer(data=data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            user = serializer.save()
+            
+            from rest_framework.authtoken.models import Token
+            token, created = Token.objects.get_or_create(user=user)
+            
+            return Response({
+                "message": "Padre registrado exitosamente",
+                "token": token.key,
+                "user_id": user.id,
+                "role": user.role
+            }, status=status.HTTP_201_CREATED)
+            
+        except serializers.ValidationError as e:
+            return Response({
+                "error": str(e.detail.get('error', e.detail))
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+class EmailTokenObtainView(APIView):
+    permission_classes = [AllowAny]
+    serializer_class = EmailAuthTokenSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            user = serializer.validated_data['user']
+            token, created = Token.objects.get_or_create(user=user)
+            return Response({
+                'token': token.key,
+                'user_id': user.pk,
+                'email': user.email,
+                'role': user.role,
+                'first_name': user.first_name,
+                'last_name': user.last_name
+            })
+        except serializers.ValidationError as e:
+            return Response({
+                'error': 'Credenciales inválidas'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+class ParticipationViewSet(viewsets.ModelViewSet):
+    serializer_class = ParticipationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = Participation.objects.all()
+
+        if user.role == 'ADMIN':
+            pass  # Admin ve todo
+        elif user.role == 'TEACHER':
+            taught_subjects = Subject.objects.filter(teachersubject__teacher=user)
+            queryset = queryset.filter(subject__in=taught_subjects)
+        elif user.role == 'STUDENT':
+            queryset = queryset.filter(student=user)
+        elif user.role == 'PARENT':
+            queryset = queryset.filter(student__in=user.children.all())
+        else:
+            return Participation.objects.none()
+
+        return queryset.distinct()
+
+    def create(self, request, *args, **kwargs):
+        if not (request.user.role == 'TEACHER' or request.user.role == 'ADMIN'):
+            return Response(
+                {"error": "No tiene permiso para registrar participaciones."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        
+        return Response({
+            "message": "Participación registrada exitosamente.",
+            "data": serializer.data
+        }, status=status.HTTP_201_CREATED)
+
+class AcademicPeriodViewSet(viewsets.ModelViewSet):
+    queryset = AcademicPeriod.objects.all()
+    serializer_class = AcademicPeriodSerializer
+    permission_classes = [IsAdminUser]
+
+class StudentPerformancePredictionViewSet(viewsets.ModelViewSet):
+    serializer_class = StudentPerformancePredictionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = StudentPerformancePrediction.objects.all()
+
+        if user.role == 'ADMIN':
+            pass
+        elif user.role == 'TEACHER':
+            # Profesores ven predicciones de sus estudiantes
+            taught_subjects = Subject.objects.filter(teachersubject__teacher=user)
+            student_ids = StudentEnrollment.objects.filter(
+                grade__subjects__in=taught_subjects
+            ).values_list('student_id', flat=True)
+            queryset = queryset.filter(student_id__in=student_ids)
+        elif user.role == 'STUDENT':
+            queryset = queryset.filter(student=user)
+        elif user.role == 'PARENT':
+            queryset = queryset.filter(student__in=user.children.all())
+        else:
+            return StudentPerformancePrediction.objects.none()
+
+        return queryset.distinct()
+
+    @action(detail=True, methods=['post'])
+    def predict(self, request, pk=None):
+        student = self.get_object().student
+        period = self.get_object().period
+
+        # Recopilar datos históricos
+        grades = GradeRecord.objects.filter(student=student)
+        attendance = Attendance.objects.filter(student=student)
+        participations = Participation.objects.filter(student=student)
+
+        # Preparar datos para el modelo
+        features = {
+            'average_grade': grades.aggregate(Avg('grade'))['grade__avg'] or 0,
+            'attendance_rate': attendance.filter(status='P').count() / attendance.count() if attendance.count() > 0 else 0,
+            'participation_score': participations.aggregate(Avg('score'))['score__avg'] or 0,
+            'total_participations': participations.count(),
+        }
+
+        # Usar Random Forest para la predicción
+        model = RandomForestRegressor(n_estimators=100, random_state=42)
+        
+        # Aquí normalmente cargarías un modelo pre-entrenado
+        # Por ahora usaremos datos simulados para el ejemplo
+        X_train = np.random.rand(100, len(features))
+        y_train = np.random.rand(100) * 100
+        model.fit(X_train, y_train)
+
+        # Hacer predicción
+        X_pred = np.array([[v for v in features.values()]])
+        predicted_score = model.predict(X_pred)[0]
+
+        # Determinar categoría
+        if predicted_score >= 70:
+            category = 'HIGH'
+        elif predicted_score >= 50:
+            category = 'MEDIUM'
+        else:
+            category = 'LOW'
+
+        # Guardar predicción
+        prediction = StudentPerformancePrediction.objects.create(
+            student=student,
+            period=period,
+            predicted_score=predicted_score,
+            performance_category=category,
+            confidence_score=0.85,  # Este valor debería calcularse basado en el modelo
+            features_used=features
+        )
+
+        return Response({
+            'prediction': StudentPerformancePredictionSerializer(prediction).data
+        })
+
+class DashboardViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request):
+        user = request.user
+        current_period = AcademicPeriod.objects.filter(is_active=True).first()
+
+        if not current_period:
+            return Response({
+                "error": "No hay período académico activo"
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        # Filtrar datos según el rol del usuario
+        if user.role == 'ADMIN':
+            students = User.objects.filter(role='STUDENT')
+        elif user.role == 'TEACHER':
+            taught_subjects = Subject.objects.filter(teachersubject__teacher=user)
+            students = User.objects.filter(
+                role='STUDENT',
+                studentenrollment__grade__subjects__in=taught_subjects
+            ).distinct()
+        elif user.role == 'PARENT':
+            students = user.children.all()
+        else:  # STUDENT
+            students = User.objects.filter(pk=user.pk)
+
+        # Calcular métricas
+        total_students = students.count()
+        grades = GradeRecord.objects.filter(student__in=students)
+        attendance = Attendance.objects.filter(student__in=students)
+        participations = Participation.objects.filter(student__in=students)
+
+        metrics = {
+            'total_students': total_students,
+            'average_grade': grades.aggregate(Avg('grade'))['grade__avg'] or 0,
+            'attendance_rate': attendance.filter(status='P').count() / attendance.count() if attendance.count() > 0 else 0,
+            'participation_rate': participations.count() / total_students if total_students > 0 else 0,
+            'performance_distribution': {
+                'high': StudentPerformancePrediction.objects.filter(
+                    student__in=students,
+                    performance_category='HIGH'
+                ).count(),
+                'medium': StudentPerformancePrediction.objects.filter(
+                    student__in=students,
+                    performance_category='MEDIUM'
+                ).count(),
+                'low': StudentPerformancePrediction.objects.filter(
+                    student__in=students,
+                    performance_category='LOW'
+                ).count()
+            }
+        }
+
+        # Guardar métricas
+        dashboard_metrics = DashboardMetrics.objects.create(
+            period=current_period,
+            total_students=total_students,
+            average_grade=metrics['average_grade'],
+            attendance_rate=metrics['attendance_rate'],
+            participation_rate=metrics['participation_rate'],
+            metrics_data=metrics
+        )
+
+        return Response(DashboardMetricsSerializer(dashboard_metrics).data)
+
+    @action(detail=False, methods=['get'])
+    def student_details(self, request):
+        student_id = request.query_params.get('student_id')
+        if not student_id:
+            return Response({
+                "error": "Se requiere student_id"
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            student = User.objects.get(id=student_id, role='STUDENT')
+        except User.DoesNotExist:
+            return Response({
+                "error": "Estudiante no encontrado"
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        # Verificar permisos
+        user = request.user
+        if user.role == 'PARENT' and not user.children.filter(id=student_id).exists():
+            return Response({
+                "error": "No tiene permiso para ver estos datos"
+            }, status=status.HTTP_403_FORBIDDEN)
+
+        # Recopilar datos del estudiante
+        grades = GradeRecord.objects.filter(student=student)
+        attendance = Attendance.objects.filter(student=student)
+        participations = Participation.objects.filter(student=student)
+        predictions = StudentPerformancePrediction.objects.filter(student=student)
+
+        student_data = {
+            'student_info': UserSerializer(student).data,
+            'academic_performance': {
+                'average_grade': grades.aggregate(Avg('grade'))['grade__avg'] or 0,
+                'attendance_rate': attendance.filter(status='P').count() / attendance.count() if attendance.count() > 0 else 0,
+                'participation_score': participations.aggregate(Avg('score'))['score__avg'] or 0,
+                'latest_prediction': StudentPerformancePredictionSerializer(
+                    predictions.first()
+                ).data if predictions.exists() else None
+            },
+            'recent_activities': {
+                'grades': GradeRecordSerializer(grades.order_by('-date')[:5], many=True).data,
+                'attendance': AttendanceSerializer(attendance.order_by('-date')[:5], many=True).data,
+                'participations': ParticipationSerializer(participations.order_by('-date')[:5], many=True).data
+            }
+        }
+
+        return Response(student_data)

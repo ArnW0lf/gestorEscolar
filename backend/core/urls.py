@@ -12,10 +12,17 @@ router.register(r'teacher-subjects', views.TeacherSubjectViewSet)
 router.register(r'enrollments', views.StudentEnrollmentViewSet)
 router.register(r'grades-records', views.GradeRecordViewSet, basename='graderecord')
 router.register(r'attendances', views.AttendanceViewSet, basename='attendance')
+router.register(r'participations', views.ParticipationViewSet, basename='participation')
+router.register(r'academic-periods', views.AcademicPeriodViewSet)
+router.register(r'predictions', views.StudentPerformancePredictionViewSet, basename='prediction')
+router.register(r'dashboard', views.DashboardViewSet, basename='dashboard')
 
 urlpatterns = [
-
     path('', include(router.urls)),
-    path('register/', views.UserViewSet.as_view({'post': 'create'}), name='register'),
-    path('login/', obtain_auth_token, name='login'),
+    path('login/', views.EmailTokenObtainView.as_view(), name='login'),
+    
+    # Nuevos endpoints específicos para registro
+    path('register/student/', views.RegisterStudentView.as_view(), name='register-student'),
+    path('register/teacher/', views.RegisterTeacherView.as_view(), name='register-teacher'),
+    path('register/parent/', views.RegisterParentView.as_view(), name='register-parent'),
 ]
