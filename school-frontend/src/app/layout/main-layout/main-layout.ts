@@ -24,6 +24,10 @@ import { MatButtonModule } from '@angular/material/button';
 export class MainLayoutComponent {
   constructor(private authService: AuthService) {}
 
+  public get userRole(): string | null {
+    return this.authService.getUserRole();
+  }
+
   logout(): void {
     this.authService.logout();
   }

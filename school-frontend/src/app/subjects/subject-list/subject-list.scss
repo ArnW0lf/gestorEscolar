@@ -1,9 +1,20 @@
-.subject-list-container { margin: 20px; }
+/* .subject-list-container { margin: 20px; } Replaced by admin-section-container */
 mat-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
 .add-button { margin-left: auto; }
 mat-form-field { width: 100%; margin-bottom: 16px; }
 .table-container { position: relative; overflow: auto; }
 .spinner-container { display: flex; justify-content: center; align-items: center; height: 150px; }
 table { width: 100%; }
-.mat-column-actions { width: 120px; text-align: right; }
+.mat-column-actions {
+  width: 120px;
+  text-align: right;
+  white-space: nowrap; /* Prevents buttons from wrapping */
+}
+.mat-column-actions button {
+  margin-left: 4px; /* Adds a small gap between action buttons */
+  margin-right: 4px;
+}
 .mat-column-id { width: 70px; }
+mat-paginator {
+  margin-top: 16px;
+}

@@ -7,7 +7,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { Subject } from '../../models/subject.model';
 import { SubjectService } from '../../services/subject.service'; // Corrected: .service
-// import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
+import { ConfirmationDialogComponent } from '../../shared/components/confirmation-dialog/confirmation-dialog';
 
 @Component({
   selector: 'app-subject-list',
@@ -42,7 +42,7 @@ export class SubjectListComponent implements OnInit, AfterViewInit {
       },
       error: (err) => {
         console.error('Error loading subjects:', err);
-        this.snackBar.open('Failed to load subjects.', 'Close', { duration: 3000 });
+        this.snackBar.open('Failed to load subjects.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
         this.isLoading = false;
       }
     });
@@ -68,23 +68,41 @@ export class SubjectListComponent implements OnInit, AfterViewInit {
   }
 
   deleteSubject(subjectId: number, subjectName: string): void {
-    // Replace with ConfirmationDialogComponent later
-    if (confirm(`Are you sure you want to delete subject ${subjectName} (ID: ${subjectId})? This could affect existing teacher assignments or student records.`)) {
-      this.isLoading = true;
-      this.subjectService.deleteSubject(subjectId).subscribe({
-        next: () => {
-          this.snackBar.open('Subject deleted successfully.', 'Close', { duration: 3000 });
-          this.loadSubjects(); // Refresh
-        },
-        error: (err) => {
-          // Check if err.error and err.error.detail exist, otherwise use a generic message
-          const detail = err.error && err.error.detail ? err.error.detail : 'Please try again later.';
-          const errorMsg = `Failed to delete subject. ${detail}`;
-          this.snackBar.open(errorMsg, 'Close', { duration: 5000 });
-          this.isLoading = false;
-        }
-      });
-    }
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '350px',
+      data: {
+        title: 'Confirm Deletion',
+        message: `Are you sure you want to delete subject "${subjectName}"? This action cannot be undone.`,
+        confirmButtonText: 'Delete',
+        cancelButtonText: 'Cancel'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.isLoading = true;
+        this.subjectService.deleteSubject(subjectId).subscribe({
+          next: () => {
+            this.snackBar.open('Subject deleted successfully!', 'Close', { duration: 3000 });
+            this.loadSubjects(); // Refresh the list
+          },
+          error: (err) => {
+            this.isLoading = false;
+            let errorMessage = 'Error deleting subject.';
+            // Attempt to get a more specific message from backend if available
+            if (err.error && typeof err.error.message === 'string' && err.error.message.length > 0) {
+              errorMessage = err.error.message;
+            } else if (err.error && typeof err.error === 'string' && err.error.length > 0){
+                errorMessage = err.error;
+            } else if (typeof err.message === 'string' && err.message.length > 0) {
+                 errorMessage = err.message;
+            }
+            this.snackBar.open(errorMessage, 'Close', { duration: 5000, panelClass: ['error-snackbar'] });
+            console.error('Error deleting subject:', err);
+          }
+        });
+      }
+    });
   }
 
   navigateToCreate(): void {

@@ -1,14 +1,49 @@
 .home-container {
-  padding: 20px;
+  // Padding and max-width are handled by .admin-section-container
+  // The flex centering is removed to allow normal block flow for welcome card and dashboard grid.
+
+  .welcome-card { // Styles specifically for the initial welcome card
+    max-width: 800px; // Example: allow welcome card to be wider
+    margin-left: auto; // Center the welcome card itself if it's narrower than admin-section-container
+    margin-right: auto;
+    margin-bottom: 20px; // Space before dashboard grid
+
+    mat-card-title {
+      font-size: 22px;
+    }
+  }
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-top: 20px; // Space below the welcome card (if welcome card is not centered or full width)
+                    // Or just general space if welcome card is full width due to admin-section-container
+}
+
+.dashboard-card {
+  .mat-mdc-card-header { // Target the new MDC-based Material components
+    padding-bottom: 8px; // Reduce default large padding if avatar is used
+  }
+  .mat-mdc-card-avatar { // Target new MDC class for avatar
+    font-size: 36px; // Adjusted for visibility
+    width: 36px;     // Sync with font-size
+    height: 36px;    // Sync with font-size
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  mat-icon { // Ensure icon within avatar scales if needed
+    line-height: 1; // Helps with vertical alignment of icon
+  }
+}
+
+.loading-spinner-container {
   display: flex;
-  justify-content: center; // Center the card on the page
-
-  mat-card {
-    max-width: 600px; // Set a max-width for the card
-    width: 100%;
-  }
-
-  mat-card-title {
-    font-size: 22px; // Slightly larger title for the home page card
-  }
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 30px;
+  gap: 10px;
 }

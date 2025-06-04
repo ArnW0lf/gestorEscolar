@@ -1,4 +1,8 @@
-.subject-form-container { margin: 20px; display: flex; justify-content: center; }
+/* .subject-form-container { margin: 20px; display: flex; justify-content: center; } Replaced by admin-section-container */
+.subject-form-container { /* Keep display flex and justify-content for card centering */
+ display: flex;
+ justify-content: center;
+}
 mat-card { width: 100%; max-width: 600px; }
 mat-card-header { display: flex; justify-content: center; padding-bottom: 16px; }
 mat-form-field { width: 100%; margin-bottom: 10px; }

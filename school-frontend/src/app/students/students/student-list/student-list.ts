@@ -7,7 +7,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { Student } from '../../../models/student.model'; // Adjusted path
 import { StudentService } from '../../../services/student.service'; // Adjusted path, .service added
-// import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog/confirmation-dialog.component'; // Create this
+import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog';
 
 @Component({
   selector: 'app-student-list',
@@ -47,7 +47,7 @@ export class StudentListComponent implements OnInit, AfterViewInit {
       },
       error: (err) => {
         console.error('Error loading students:', err);
-        this.snackBar.open('Failed to load students.', 'Close', { duration: 3000 });
+        this.snackBar.open('Failed to load students.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
         this.isLoading = false;
       }
     });
@@ -67,45 +67,41 @@ export class StudentListComponent implements OnInit, AfterViewInit {
   }
 
   deleteStudent(studentId: number, studentName: string): void {
-    // Example of using a confirmation dialog (you'll need to create ConfirmationDialogComponent)
-    /*
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       width: '350px',
-      data: { message: `Are you sure you want to delete student ${studentName}?` }
+      data: {
+        title: 'Confirm Deletion',
+        message: `Are you sure you want to delete student "${studentName}"? This action cannot be undone.`,
+        confirmButtonText: 'Delete',
+        cancelButtonText: 'Cancel'
+      }
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result) { // User confirmed
-        this.isLoading = true;
+      if (result) {
+        this.isLoading = true; // Show spinner while deleting
         this.studentService.deleteStudent(studentId).subscribe({
           next: () => {
-            this.snackBar.open('Student deleted successfully.', 'Close', { duration: 3000 });
+            this.snackBar.open('Student deleted successfully!', 'Close', { duration: 3000 });
             this.loadStudents(); // Refresh the list
           },
           error: (err) => {
+            this.isLoading = false; // Hide spinner
+            let errorMessage = 'Error deleting student.';
+            // Attempt to get a more specific message from backend if available
+            if (err.error && typeof err.error.message === 'string' && err.error.message.length > 0) {
+              errorMessage = err.error.message;
+            } else if (err.error && typeof err.error === 'string' && err.error.length > 0){ // if error is just a string
+                errorMessage = err.error;
+            } else if (typeof err.message === 'string' && err.message.length > 0) { // fallback to err.message
+                 errorMessage = err.message;
+            }
+            this.snackBar.open(errorMessage, 'Close', { duration: 5000, panelClass: ['error-snackbar'] });
             console.error('Error deleting student:', err);
-            this.snackBar.open('Failed to delete student.', 'Close', { duration: 3000 });
-            this.isLoading = false;
           }
         });
       }
     });
-    */
-    // For now, direct delete with confirm for simplicity until dialog is made
-    if (confirm(`Are you sure you want to delete student ${studentName} (ID: ${studentId})?`)) {
-      this.isLoading = true;
-      this.studentService.deleteStudent(studentId).subscribe({
-        next: () => {
-          this.snackBar.open('Student deleted successfully.', 'Close', { duration: 3000 });
-          this.loadStudents(); // Refresh the list
-        },
-        error: (err) => {
-          console.error('Error deleting student:', err);
-          this.snackBar.open(`Failed to delete student. ${err.message || ''}`, 'Close', { duration: 5000 });
-          this.isLoading = false;
-        }
-      });
-    }
   }
 
   navigateToCreate(): void {

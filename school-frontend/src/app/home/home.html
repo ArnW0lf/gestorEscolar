@@ -1,12 +1,54 @@
-<div class="home-container">
-  <mat-card>
+<div class="home-container admin-section-container">
+  <mat-card class="welcome-card"> <!-- Added a class to distinguish the welcome card if needed -->
     <mat-card-header>
       <mat-card-title>Welcome!</mat-card-title>
     </mat-card-header>
     <mat-card-content>
       <p>You have successfully logged in.</p>
       <p>Your role is: <strong>{{ userRole }}</strong></p>
-      <!-- Add more content or navigation options here -->
     </mat-card-content>
   </mat-card>
+
+  <div *ngIf="userRole === 'Admin' && !isLoading" class="dashboard-grid">
+    <!-- Students Card -->
+    <mat-card class="dashboard-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>people</mat-icon>
+        <mat-card-title>Students</mat-card-title>
+        <mat-card-subtitle>Total: {{ studentCount }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-actions align="end">
+        <button mat-stroked-button routerLink="/students">Manage Students</button>
+      </mat-card-actions>
+    </mat-card>
+
+    <!-- Teachers Card -->
+    <mat-card class="dashboard-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>school</mat-icon>
+        <mat-card-title>Teachers</mat-card-title>
+        <mat-card-subtitle>Total: {{ teacherCount }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-actions align="end">
+        <button mat-stroked-button routerLink="/teachers">Manage Teachers</button>
+      </mat-card-actions>
+    </mat-card>
+
+    <!-- Subjects Card -->
+    <mat-card class="dashboard-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>book</mat-icon>
+        <mat-card-title>Subjects</mat-card-title>
+        <mat-card-subtitle>Total: {{ subjectCount }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-actions align="end">
+        <button mat-stroked-button routerLink="/subjects">Manage Subjects</button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <div *ngIf="isLoading && userRole === 'Admin'" class="loading-spinner-container">
+    <mat-progress-spinner color="primary" mode="indeterminate"></mat-progress-spinner>
+    <p>Loading dashboard data...</p>
+  </div>
 </div>

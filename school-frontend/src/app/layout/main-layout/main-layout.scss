@@ -3,11 +3,25 @@
 }
 
 .content-container {
-  padding: 20px;
+  // padding: 20px; // Removed, handled by admin-section-container on child components
 }
 
 mat-toolbar {
   position: sticky;
   top: 0;
   z-index: 1000; // Ensure toolbar stays on top
+
+  button[mat-button] { // Targets mat-buttons used for navigation
+    margin-left: 8px;
+    margin-right: 8px;
+    vertical-align: middle; // Align icon and text better if needed
+
+    .mat-icon { // If icons are used within buttons
+      margin-right: 4px; // Space between icon and text
+    }
+  }
+
+  .active-nav-link { // Style for the active router link
+    background-color: rgba(255, 255, 255, 0.1); // Example active style
+  }
 }

@@ -8,7 +8,7 @@ import { Router } from '@angular/router';
 import { Teacher } from '../../models/teacher.model';
 import { Subject } from '../../models/subject.model';
 import { TeacherService } from '../../services/teacher.service';
-// import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component'; // Create this
+import { ConfirmationDialogComponent } from '../../shared/components/confirmation-dialog/confirmation-dialog';
 
 @Component({
   selector: 'app-teacher-list',
@@ -45,7 +45,7 @@ export class TeacherListComponent implements OnInit, AfterViewInit {
       },
       error: (err) => {
         console.error('Error loading subjects:', err);
-        this.snackBar.open('Failed to load subject data for mapping. Teachers list might show IDs.', 'Close', { duration: 3000 });
+        this.snackBar.open('Failed to load subject data for mapping. Teachers list might show IDs.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
         this.loadTeachers(); // Still try to load teachers
       }
     });
@@ -59,7 +59,7 @@ export class TeacherListComponent implements OnInit, AfterViewInit {
       },
       error: (err) => {
         console.error('Error loading teachers:', err);
-        this.snackBar.open('Failed to load teachers.', 'Close', { duration: 3000 });
+        this.snackBar.open('Failed to load teachers.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
         this.isLoading = false;
       }
     });
@@ -94,20 +94,41 @@ export class TeacherListComponent implements OnInit, AfterViewInit {
   }
 
   deleteTeacher(teacherId: number, teacherName: string): void {
-    // Replace with ConfirmationDialogComponent later
-    if (confirm(`Are you sure you want to delete teacher ${teacherName} (ID: ${teacherId})?`)) {
-      this.isLoading = true;
-      this.teacherService.deleteTeacher(teacherId).subscribe({
-        next: () => {
-          this.snackBar.open('Teacher deleted successfully.', 'Close', { duration: 3000 });
-          this.loadTeachers(); // Refresh the list
-        },
-        error: (err) => {
-          this.snackBar.open(`Failed to delete teacher. ${err.message || ''}`, 'Close', { duration: 5000 });
-          this.isLoading = false;
-        }
-      });
-    }
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '350px',
+      data: {
+        title: 'Confirm Deletion',
+        message: `Are you sure you want to delete teacher "${teacherName}"? This action cannot be undone.`,
+        confirmButtonText: 'Delete',
+        cancelButtonText: 'Cancel'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.isLoading = true;
+        this.teacherService.deleteTeacher(teacherId).subscribe({
+          next: () => {
+            this.snackBar.open('Teacher deleted successfully!', 'Close', { duration: 3000 });
+            this.loadTeachers(); // Or the relevant method to refresh the list
+          },
+          error: (err) => {
+            this.isLoading = false;
+            let errorMessage = 'Error deleting teacher.';
+            // Attempt to get a more specific message from backend if available
+            if (err.error && typeof err.error.message === 'string' && err.error.message.length > 0) {
+              errorMessage = err.error.message;
+            } else if (err.error && typeof err.error === 'string' && err.error.length > 0){
+                errorMessage = err.error;
+            } else if (typeof err.message === 'string' && err.message.length > 0) {
+                 errorMessage = err.message;
+            }
+            this.snackBar.open(errorMessage, 'Close', { duration: 5000, panelClass: ['error-snackbar'] });
+            console.error('Error deleting teacher:', err);
+          }
+        });
+      }
+    });
   }
 
   navigateToCreate(): void {

@@ -52,14 +52,14 @@ export class TeacherFormComponent implements OnInit {
       if (this.teacherId && !isNaN(this.teacherId)) { // Check if teacherId is a valid number
         teacherDataObs = this.teacherService.getTeacherById(this.teacherId).pipe(
           catchError(err => {
-            this.snackBar.open('Failed to load teacher data for editing.', 'Close', { duration: 3000 });
+            this.snackBar.open('Failed to load teacher data for editing.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
             console.error(err);
             this.router.navigate(['/teachers']);
             return of(null); // Return null or handle error appropriately
           })
         );
       } else {
-         this.snackBar.open('Invalid teacher ID for editing.', 'Close', { duration: 3000 });
+         this.snackBar.open('Invalid teacher ID for editing.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
          this.router.navigate(['/teachers']);
          this.isLoading = false; // Stop loading as we are navigating away
          return;
@@ -82,7 +82,7 @@ export class TeacherFormComponent implements OnInit {
         this.isLoading = false;
       },
       error: (err) => { // This error is for forkJoin itself (e.g., if getAvailableSubjects fails hard)
-        this.snackBar.open('Failed to load data for the form.', 'Close', { duration: 3000 });
+        this.snackBar.open('Failed to load data for the form.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
         console.error(err);
         this.isLoading = false;
         if (!this.isEditMode) { // If creating, subjects are essential, maybe navigate away or disable form
@@ -96,7 +96,7 @@ export class TeacherFormComponent implements OnInit {
   onSubmit(): void {
     if (this.teacherForm.invalid) {
       this.teacherForm.markAllAsTouched();
-      this.snackBar.open('Please fill all required fields correctly.', 'Close', { duration: 3000 });
+      this.snackBar.open('Please fill all required fields correctly.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
       return;
     }
 
@@ -106,7 +106,7 @@ export class TeacherFormComponent implements OnInit {
     if (this.isEditMode && this.teacherId) {
       this.teacherService.updateTeacher(this.teacherId, teacherData).subscribe({
         next: () => {
-          this.snackBar.open('Teacher updated successfully!', 'Close', { duration: 3000 });
+          this.snackBar.open('Teacher saved successfully!', 'Close', { duration: 3000 });
           this.router.navigate(['/teachers']);
         },
         error: (err) => this.handleFormError(err, 'update')
@@ -114,7 +114,7 @@ export class TeacherFormComponent implements OnInit {
     } else {
       this.teacherService.createTeacher(teacherData).subscribe({
         next: () => {
-          this.snackBar.open('Teacher created successfully!', 'Close', { duration: 3000 });
+          this.snackBar.open('Teacher saved successfully!', 'Close', { duration: 3000 });
           this.router.navigate(['/teachers']);
         },
         error: (err) => this.handleFormError(err, 'create')
@@ -124,7 +124,7 @@ export class TeacherFormComponent implements OnInit {
 
   private handleFormError(err: any, action: 'create' | 'update'): void {
     const message = `Failed to ${action} teacher. ${this.getBackendErrorMessage(err)}`;
-    this.snackBar.open(message, 'Close', { duration: 7000 });
+    this.snackBar.open(message, 'Close', { duration: 5000, panelClass: ['error-snackbar'] });
     console.error(err);
     this.isLoading = false;
   }

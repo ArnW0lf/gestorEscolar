@@ -1,6 +1,30 @@
 <mat-toolbar color="primary">
   <span>School Management</span>
+
+  <button mat-button routerLink="/home" routerLinkActive="active-nav-link">
+    <mat-icon>home</mat-icon> Home
+  </button>
+
+  <ng-container *ngIf="userRole === 'Admin'">
+    <button mat-button routerLink="/students" routerLinkActive="active-nav-link">
+      <mat-icon>people</mat-icon> Students
+    </button>
+    <button mat-button routerLink="/teachers" routerLinkActive="active-nav-link">
+      <mat-icon>school</mat-icon> Teachers
+    </button>
+    <button mat-button routerLink="/subjects" routerLinkActive="active-nav-link">
+      <mat-icon>book</mat-icon> Subjects
+    </button>
+  </ng-container>
+
+  <ng-container *ngIf="userRole === 'Docente'">
+    <button mat-button routerLink="/grades" routerLinkActive="active-nav-link">
+      <mat-icon>assessment</mat-icon> Grades
+    </button>
+  </ng-container>
+
   <span class="spacer"></span>
+
   <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="User menu">
     <mat-icon>account_circle</mat-icon>
   </button>

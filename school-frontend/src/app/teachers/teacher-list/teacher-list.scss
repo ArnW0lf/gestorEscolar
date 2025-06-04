@@ -1,6 +1,8 @@
+/*
 .teacher-list-container {
-  margin: 20px;
+  margin: 20px; // Replaced by admin-section-container
 }
+*/
 mat-card-header {
   display: flex;
   justify-content: space-between;
@@ -30,6 +32,11 @@ table {
 .mat-column-actions {
   width: 120px;
   text-align: right;
+  white-space: nowrap; /* Prevents buttons from wrapping */
+}
+.mat-column-actions button {
+  margin-left: 4px; /* Adds a small gap between action buttons */
+  margin-right: 4px;
 }
 .mat-column-id {
   width: 70px;
@@ -41,4 +48,7 @@ mat-chip-listbox {
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
+}
+mat-paginator {
+  margin-top: 16px;
 }

@@ -1,5 +1,11 @@
+/*
 .teacher-form-container {
-  margin: 20px;
+  margin: 20px; // Replaced by admin-section-container
+  display: flex;
+  justify-content: center;
+}
+*/
+.teacher-form-container { // Keep display flex and justify-content for card centering
   display: flex;
   justify-content: center;
 }

@@ -57,14 +57,14 @@ export class SubjectFormComponent implements OnInit {
             this.isLoading = false;
           },
           error: (err) => {
-            this.snackBar.open('Failed to load subject data.', 'Close', { duration: 3000 });
+            this.snackBar.open('Failed to load subject data.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
             console.error(err);
             this.isLoading = false;
             this.router.navigate(['/subjects']);
           }
         });
       } else {
-        this.snackBar.open('Invalid subject ID for editing.', 'Close', { duration: 3000 });
+        this.snackBar.open('Invalid subject ID for editing.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
         this.router.navigate(['/subjects']);
       }
     }
@@ -73,7 +73,7 @@ export class SubjectFormComponent implements OnInit {
   onSubmit(): void {
     if (this.subjectForm.invalid) {
       this.subjectForm.markAllAsTouched();
-      this.snackBar.open('Please fill all required fields correctly.', 'Close', { duration: 3000 });
+      this.snackBar.open('Please fill all required fields correctly.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
       return;
     }
 
@@ -86,7 +86,7 @@ export class SubjectFormComponent implements OnInit {
 
     operation.subscribe({
       next: () => {
-        this.snackBar.open(`Subject ${this.isEditMode ? 'updated' : 'created'} successfully!`, 'Close', { duration: 3000 });
+        this.snackBar.open('Subject saved successfully!', 'Close', { duration: 3000 });
         this.router.navigate(['/subjects']);
       },
       error: (err) => {
@@ -107,7 +107,7 @@ export class SubjectFormComponent implements OnInit {
         } else if (err.message) {
           errorMessage += ` ${err.message}`;
         }
-        this.snackBar.open(errorMessage, 'Close', { duration: 7000 });
+        this.snackBar.open(errorMessage, 'Close', { duration: 5000, panelClass: ['error-snackbar'] });
         console.error(err);
         this.isLoading = false;
       }

@@ -1,5 +1,11 @@
+/*
 .student-form-container {
-  margin: 20px;
+  margin: 20px; // Replaced by admin-section-container global style for padding
+  display: flex;
+  justify-content: center;
+}
+*/
+.student-form-container { // Keep display flex and justify-content for card centering
   display: flex;
   justify-content: center;
 }

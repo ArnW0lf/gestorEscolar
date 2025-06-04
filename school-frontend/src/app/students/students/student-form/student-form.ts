@@ -93,7 +93,7 @@ export class StudentFormComponent implements OnInit {
           this.router.navigate(['/students']);
         },
         error: (err) => {
-          this.snackBar.open(`Failed to update student. ${err.message || ''}`, 'Close', { duration: 5000 });
+          this.snackBar.open(`Failed to update student. ${err.message || ''}`, 'Close', { duration: 5000, panelClass: ['error-snackbar'] });
           console.error(err);
           this.isLoading = false;
         }
@@ -105,7 +105,8 @@ export class StudentFormComponent implements OnInit {
           this.router.navigate(['/students']);
         },
         error: (err) => {
-          this.snackBar.open(`Failed to create student. ${this.getBackendErrorMessage(err)}`, 'Close', { duration: 5000 });
+          this.snackBar.open(`Failed to create student. ${this.getBackendErrorMessage(err)}`, 'Close', { duration: 5000, panelClass: ['error-snackbar'] });
+            this.snackBar.open('Failed to load student data.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
           console.error(err);
           this.isLoading = false;
         }
