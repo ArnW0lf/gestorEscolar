@@ -1,0 +1,84 @@
+<div class="student-form-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ pageTitle }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="spinner-container" *ngIf="isLoading">
+        <mat-progress-spinner color="primary" mode="indeterminate"></mat-progress-spinner>
+      </div>
+
+      <form [formGroup]="studentForm" (ngSubmit)="onSubmit()" [hidden]="isLoading">
+        <mat-form-field appearance="fill">
+          <mat-label>First Name</mat-label>
+          <input matInput formControlName="nombre" required>
+          <mat-error *ngIf="studentForm.get('nombre')?.hasError('required')">
+            First name is required.
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Last Name</mat-label>
+          <input matInput formControlName="apellido" required>
+          <mat-error *ngIf="studentForm.get('apellido')?.hasError('required')">
+            Last name is required.
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>DNI</mat-label>
+          <input matInput formControlName="dni" required pattern="^[0-9]{8}$">
+          <mat-error *ngIf="studentForm.get('dni')?.hasError('required')">
+            DNI is required.
+          </mat-error>
+          <mat-error *ngIf="studentForm.get('dni')?.hasError('pattern')">
+            DNI must be 8 digits.
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Date of Birth</mat-label>
+          <input matInput [matDatepicker]="picker" formControlName="fecha_nacimiento" required>
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+          <mat-error *ngIf="studentForm.get('fecha_nacimiento')?.hasError('required')">
+            Date of birth is required.
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Grade</mat-label>
+          <mat-select formControlName="grado" required>
+            <mat-option *ngFor="let grado of grados" [value]="grado">
+              {{grado}}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="studentForm.get('grado')?.hasError('required')">
+            Grade is required.
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Section</mat-label>
+          <mat-select formControlName="seccion" required>
+            <mat-option *ngFor="let seccion of secciones" [value]="seccion">
+              {{seccion}}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="studentForm.get('seccion')?.hasError('required')">
+            Section is required.
+          </mat-error>
+        </mat-form-field>
+
+        <div class="form-actions">
+          <button mat-raised-button color="primary" type="submit" [disabled]="studentForm.invalid || isLoading">
+            {{ isEditMode ? 'Update' : 'Create' }} Student
+          </button>
+          <button mat-stroked-button type="button" (click)="onCancel()" [disabled]="isLoading">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

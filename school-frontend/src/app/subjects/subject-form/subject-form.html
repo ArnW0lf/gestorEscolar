@@ -1,0 +1,52 @@
+<div class="subject-form-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ pageTitle }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="spinner-container" *ngIf="isLoading">
+        <mat-progress-spinner color="primary" mode="indeterminate"></mat-progress-spinner>
+      </div>
+
+      <form [formGroup]="subjectForm" (ngSubmit)="onSubmit()" [hidden]="isLoading">
+        <mat-form-field appearance="fill">
+          <mat-label>Subject Name</mat-label>
+          <input matInput formControlName="nombre" required>
+          <mat-error *ngIf="subjectForm.get('nombre')?.hasError('required')">
+            Name is required.
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Subject Code</mat-label>
+          <input matInput formControlName="codigo" required>
+          <mat-error *ngIf="subjectForm.get('codigo')?.hasError('required')">
+            Code is required.
+          </mat-error>
+          <!-- Add error for uniqueness if handled client-side or from backend response -->
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Assigned Grade/Level</mat-label>
+          <mat-select formControlName="grado_asignado" required>
+             <mat-option *ngFor="let grado of gradosAsignados" [value]="grado">
+              {{grado}}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="subjectForm.get('grado_asignado')?.hasError('required')">
+            Assigned grade is required.
+          </mat-error>
+        </mat-form-field>
+
+        <div class="form-actions">
+          <button mat-raised-button color="primary" type="submit" [disabled]="subjectForm.invalid || isLoading">
+            {{ isEditMode ? 'Update' : 'Create' }} Subject
+          </button>
+          <button mat-stroked-button type="button" (click)="onCancel()" [disabled]="isLoading">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,0 +1,15 @@
+<div class="home-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Welcome!</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p>You have successfully logged in.</p>
+      <p>Your role is: <strong>{{ userRole || 'Role not available' }}</strong></p>
+      
+      <div *ngIf="tokenError" class="error-message">
+        {{ tokenError }}
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

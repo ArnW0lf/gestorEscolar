@@ -1,0 +1,14 @@
+.home-container {
+  padding: 20px;
+  display: flex;
+  justify-content: center; // Center the card on the page
+
+  mat-card {
+    max-width: 600px; // Set a max-width for the card
+    width: 100%;
+  }
+
+  mat-card-title {
+    font-size: 22px; // Slightly larger title for the home page card
+  }
+}

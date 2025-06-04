@@ -1,0 +1,74 @@
+<div class="grade-form-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Record Grade</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="spinner-container main-spinner" *ngIf="isLoading && !(subjects$ | async)">
+        <mat-progress-spinner color="primary" mode="indeterminate"></mat-progress-spinner>
+        <p>Loading subjects...</p>
+      </div>
+
+      <form [formGroup]="gradeForm" (ngSubmit)="onSubmit()" [hidden]="isLoading && !(subjects$ | async)">
+        <mat-form-field appearance="fill">
+          <mat-label>Select Subject</mat-label>
+          <mat-select formControlName="subject_id" required>
+            <mat-option *ngFor="let subject of (subjects$ | async)" [value]="subject.id">
+              {{subject.nombre}} ({{subject.codigo}}) - {{subject.grado_asignado}}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="gradeForm.get('subject_id')?.hasError('required')">
+            Subject is required.
+          </mat-error>
+        </mat-form-field>
+
+        <div class="spinner-container student-spinner" *ngIf="isStudentsLoading">
+          <mat-progress-spinner color="accent" mode="indeterminate" [diameter]="30"></mat-progress-spinner>
+          <p>Loading students...</p>
+        </div>
+        <mat-form-field appearance="fill" [hidden]="isStudentsLoading">
+          <mat-label>Select Student</mat-label>
+          <mat-select formControlName="student_id" required>
+            <mat-option *ngFor="let student of (students$ | async)" [value]="student.id">
+              {{student.nombre}} {{student.apellido}} (DNI: {{student.dni}})
+            </mat-option>
+            <mat-option *ngIf="!(students$ | async)?.length && gradeForm.get('subject_id')?.value && !isStudentsLoading" [disabled]="true">
+              No students found for this subject or subject not selected.
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="gradeForm.get('student_id')?.hasError('required')">
+            Student is required.
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Grade (0-100)</mat-label>
+          <input matInput type="number" formControlName="grade_value" required min="0" max="100">
+          <mat-error *ngIf="gradeForm.get('grade_value')?.hasError('required')">
+            Grade is required.
+          </mat-error>
+          <mat-error *ngIf="gradeForm.get('grade_value')?.hasError('min') || gradeForm.get('grade_value')?.hasError('max')">
+            Grade must be between 0 and 100.
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Description (e.g., Examen Parcial)</mat-label>
+          <input matInput formControlName="description" required>
+          <mat-error *ngIf="gradeForm.get('description')?.hasError('required')">
+            Description is required.
+          </mat-error>
+        </mat-form-field>
+
+        <div class="form-actions">
+          <button mat-raised-button color="primary" type="submit" [disabled]="gradeForm.invalid || isLoading || isStudentsLoading">
+            Record Grade
+          </button>
+          <button mat-stroked-button type="button" (click)="onCancel()" [disabled]="isLoading || isStudentsLoading">
+            Cancel / Clear
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

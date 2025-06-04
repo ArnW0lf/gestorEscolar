@@ -1,0 +1,14 @@
+<!-- child_attendance.html -->
+{% extends 'base.html' %}
+{% block content %}
+<h2>Asistencias de mis hijos</h2>
+<table>
+    {% for att in object_list %}
+    <tr>
+        <td>{{ att.student }}</td>
+        <td>{{ att.date }}</td>
+        <td>{{ att.get_status_display }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

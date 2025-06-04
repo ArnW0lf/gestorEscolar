@@ -1,0 +1,31 @@
+.teacher-form-container {
+  margin: 20px;
+  display: flex;
+  justify-content: center;
+}
+mat-card {
+  width: 100%;
+  max-width: 600px;
+}
+mat-card-header {
+  display: flex;
+  justify-content: center;
+  padding-bottom: 16px;
+}
+mat-form-field {
+  width: 100%;
+  margin-bottom: 10px;
+}
+.form-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  margin-bottom: 20px;
+}

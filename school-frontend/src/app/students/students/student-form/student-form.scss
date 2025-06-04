@@ -1,0 +1,36 @@
+.student-form-container {
+  margin: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+mat-card {
+  width: 100%;
+  max-width: 600px; /* Adjust as needed */
+}
+
+mat-card-header {
+  display: flex;
+  justify-content: center; /* Center title */
+  padding-bottom: 16px;
+}
+
+mat-form-field {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.form-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end; /* Align buttons to the right */
+  gap: 10px; /* Space between buttons */
+}
+
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px; /* Or any appropriate height */
+  margin-bottom: 20px;
+}
